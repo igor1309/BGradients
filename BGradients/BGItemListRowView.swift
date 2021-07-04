@@ -15,9 +15,11 @@ struct BGItemListRowView: View {
         HStack {
             ForEach(bgItem.colorValues, id: \.self) { colorValue in
                 Text(String(format: "%02X", colorValue))
+                    .font(.subheadline)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
+            
         }
     }
 }

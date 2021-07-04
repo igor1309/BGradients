@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-
 @available(iOS 15.0, *)
-extension BGItemListView {
     
     final class ViewModel: ObservableObject {
         @Published private(set) var bgItems: [BGItem] = [] {
@@ -17,8 +15,24 @@ extension BGItemListView {
             }
         }
         
+        @Published var selectedItem: BGItem?
+        
         init() {
             bgItems = loadBGItems()
+        }
+        
+        func nextBGItem() {
+            guard let id = selectedItem?.id,
+                  let index = bgItems.firstIndex(where: { $0.id == id }) else { return }
+            let next = (index + 1) % bgItems.count
+            selectedItem = bgItems[next]
+        }
+        
+        func previousBGItem() {
+            guard let id = selectedItem?.id,
+                  let index = bgItems.firstIndex(where: { $0.id == id }) else { return }
+            let next = (index - 1 + bgItems.count) % bgItems.count
+            selectedItem = bgItems[next]
         }
         
         private func loadBGItems() -> [BGItem] {
@@ -31,5 +45,4 @@ extension BGItemListView {
             return items
         }
     }
-    
-}
+

@@ -21,13 +21,29 @@ extension BGItem {
 struct BGItemListView: View {
     @StateObject private var model = ViewModel()
     
+    @State private var isPresented = false
+    
     var body: some View {
         List {
             ForEach(model.bgItems) { bgItem in
                 BGItemListRowView(bgItem: bgItem)
                     .listRowBackground(bgItem.linearGradient)
                     .listRowSeparator(.hidden)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            model.selectedItem = bgItem
+                            isPresented = true
+                        }
+                    }
             }
+        }
+        .listStyle(.plain)
+        .navigationTitle("Gradients")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isPresented) {
+            BGItemDetailView()
+                .environmentObject(model)
         }
     }
 }
@@ -35,6 +51,9 @@ struct BGItemListView: View {
 @available(iOS 15.0, *)
 struct BGItemListView_Previews: PreviewProvider {
     static var previews: some View {
-        BGItemListView()
+        NavigationView {
+            BGItemListView()
+        }
+        .preferredColorScheme(.dark)
     }
 }

@@ -23,7 +23,7 @@ extension BGItem {
         id: UUID(),
         isTextColorWhite: true,
         opacity: 1,
-        colorValues: gradientColors[2])
+        colorValues: gradientColors[5])
 }
 
 extension Array where Element == BGItem {
