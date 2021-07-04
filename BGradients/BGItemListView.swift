@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-extension BGItem {
-    var linearGradient: LinearGradient {
-        LinearGradient(
-            gradient: Gradient(colors: colors),
-            startPoint: .leading,
-            endPoint: .trailing
-        )
-    }
-}
-
 @available(iOS 15.0, *)
 struct BGItemListView: View {
     @StateObject private var model = ViewModel()

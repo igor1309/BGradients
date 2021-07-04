@@ -19,6 +19,16 @@ struct BGItem: Identifiable, Codable {
 }
 
 extension BGItem {
+    var linearGradient: LinearGradient {
+        LinearGradient(
+            gradient: Gradient(colors: colors),
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+}
+
+extension BGItem {
     static let sample = BGItem(
         id: UUID(),
         isTextColorWhite: true,

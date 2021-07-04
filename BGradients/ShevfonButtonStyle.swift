@@ -15,11 +15,12 @@ struct ShevfonButtonStyle: ButtonStyle {
             .imageScale(.large)
             .padding()
             .padding(.vertical)
-            .foregroundStyle(.thinMaterial)
+//            .foregroundStyle(.regularMaterial)
             .background(
                 .quaternary,
                 in: RoundedRectangle(cornerRadius: 12)
             )
+            .blendMode(.overlay)
     }
 }
 
