@@ -10,8 +10,6 @@ import SwiftUI
 @available(iOS 15.0, *)
 struct BGItemDetailView: View {
     
-    @Environment(\.dismiss) private var dismiss
-    
     @EnvironmentObject private var model: ViewModel
     
     @State private var pointIndex = 0
@@ -31,34 +29,33 @@ struct BGItemDetailView: View {
             ZStack {
                 gradient(for: bgItem)
                 
-                VStack {
+                line
+                
+                VStack(spacing: 0) {
                     dismissView
-                    Spacer()
+                    
+                    colorLabels(for: bgItem)
+                    
+                    chevronButtons
+                    
                     Text("Tab to rotate gradient")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                 }
-                
-                VStack {
-                    ZStack {
-                        Line(pointPair: pointPair)
-                            .stroke(style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                            .foregroundStyle(.secondary)
-                            .blendMode(.overlay)
-                            .padding()
-                            .padding(.vertical)
-                        // .padding(.vertical)
-                            .padding(.vertical)
-                        // .padding(.bottom).padding(.bottom)
-                        
-                        colorLabels(for: bgItem)
-                    }
-                    .layoutPriority(1)
-                    
-                    chevronButtons
-                }
             }
         }
+    }
+    
+    private var line: some View {
+        Line(pointPair: pointPair)
+            .stroke(style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            .foregroundStyle(.quaternary)
+            .blendMode(.overlay)
+            .padding()
+        //            .padding(.vertical)
+        //        // .padding(.vertical)
+        //            .padding(.vertical)
+        //        // .padding(.bottom).padding(.bottom)
     }
     
     private func colorLabels(for bgItem: BGItem) -> some View {
@@ -104,7 +101,8 @@ struct BGItemDetailView: View {
             Spacer()
             nextButton
         }
-        .padding(.bottom).padding(.bottom)
+        //        .padding(.bottom)
+        // .padding(.bottom)
     }
     
     private var previousButton: some View {
