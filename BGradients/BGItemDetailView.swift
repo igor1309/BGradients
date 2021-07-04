@@ -12,17 +12,7 @@ struct BGItemDetailView: View {
     
     @EnvironmentObject private var model: ViewModel
     
-    @State private var pointIndex = 0
-    
     @State private var pointPair: PointPair = [PointPair].sample[0]
-    
-    private let pointPairs = [PointPair].sample
-    
-    private func next() {
-        let next = (pointIndex + 1) % pointPairs.count
-        pointIndex = next
-        pointPair = pointPairs[pointIndex]
-    }
     
     var body: some View {
         model.selectedItem.map { bgItem in
@@ -52,10 +42,6 @@ struct BGItemDetailView: View {
             .foregroundStyle(.quaternary)
             .blendMode(.overlay)
             .padding()
-        //            .padding(.vertical)
-        //        // .padding(.vertical)
-        //            .padding(.vertical)
-        //        // .padding(.bottom).padding(.bottom)
     }
     
     private func colorLabels(for bgItem: BGItem) -> some View {
@@ -101,8 +87,6 @@ struct BGItemDetailView: View {
             Spacer()
             nextButton
         }
-        //        .padding(.bottom)
-        // .padding(.bottom)
     }
     
     private var previousButton: some View {
@@ -148,6 +132,10 @@ struct BGItemDetailView: View {
         //                    removal: .move(edge: .trailing)
         //                )
         //            )
+    }
+    
+    private func next() {
+        pointPair = pointPair.next()
     }
     
 }
