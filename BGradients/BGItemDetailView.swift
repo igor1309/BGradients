@@ -28,7 +28,7 @@ struct BGItemDetailView: View {
                     colorLabels(for: bgItem)
                     
                     // chevronButtons
-                    Text("Tap upper part to rotate and lower to change gradient")
+                    Text("Tap upper part to rotate and lower to change gradient\nHold color code to copy")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                 }
@@ -66,7 +66,7 @@ struct BGItemDetailView: View {
         GeometryReader { geo in
             VStack {
                 Text("Tap anywhere to close")
-                    .foregroundStyle(.indigo)
+                    .foregroundStyle(.purple)
                     .padding(.top)
                 
                 HStack {
@@ -74,13 +74,19 @@ struct BGItemDetailView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.mint)
                         .overlay(
-                            Text("Tap area to rotate gradient counterclockwise")
+                            Label(
+                                "Tap area to rotate gradient counterclockwise",
+                                systemImage: "arrow.counterclockwise"
+                            )
                                 .padding()
                         )
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.mint)
                         .overlay(
-                            Text("Tap area to rotate gradient clockwise")
+                            Label(
+                                "Tap area to rotate gradient clockwise",
+                                systemImage: "arrow.clockwise"
+                            )
                                 .padding()
                         )
                 }
@@ -91,13 +97,13 @@ struct BGItemDetailView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.indigo)
                         .overlay(
-                            Text("Previous gradient")
+                            Text("\(Image(systemName: "chevron.left")) Previous gradient")
                                 .padding()
                         )
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.indigo)
                         .overlay(
-                            Text("Next gradient")
+                            Text("Next gradient \(Image(systemName: "chevron.right"))")
                                 .padding()
                         )
                 }
