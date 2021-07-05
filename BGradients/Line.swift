@@ -8,39 +8,39 @@
 import SwiftUI
 
 struct Line: Shape {
-    var pointPair: PointPair
+    var direction: Direction
     
     var animatableData: AnimatablePair<AnimatablePair<Double, Double>, AnimatablePair<Double, Double>> {
         get {
             AnimatablePair(
-                AnimatablePair(pointPair.start.x, pointPair.start.y),
-                AnimatablePair(pointPair.end.x, pointPair.end.y)
+                AnimatablePair(direction.start.x, direction.start.y),
+                AnimatablePair(direction.end.x, direction.end.y)
             )
         }
         set {
-            pointPair.start.x = newValue.first.first
-            pointPair.start.y = newValue.first.second
-            pointPair.end.x = newValue.second.first
-            pointPair.end.y = newValue.second.second
+            direction.start.x = newValue.first.first
+            direction.start.y = newValue.first.second
+            direction.end.x = newValue.second.first
+            direction.end.y = newValue.second.second
         }
     }
     
     func path(in rect: CGRect) -> Path {
         Path { path in
             path.move(to: CGPoint(
-                x: pointPair.start.x * rect.width,
-                y: pointPair.start.y * rect.height
+                x: direction.start.x * rect.width,
+                y: direction.start.y * rect.height
             ))
             path.addLine(to: CGPoint(
-                x: pointPair.end.x * rect.width,
-                y: pointPair.end.y * rect.height
+                x: direction.end.x * rect.width,
+                y: direction.end.y * rect.height
             ))
         }
     }
 }
 
 struct TestLine: View {
-    @State private var pointPair = PointPair(
+    @State private var direction = Direction(
         start: .topLeading,
         end: .bottomTrailing
     )
@@ -55,7 +55,7 @@ struct TestLine: View {
                     }
                 }
             
-            Line(pointPair: pointPair)
+            Line(direction: direction)
                 .stroke(style: .init(lineWidth: 6, lineCap: .round, lineJoin: .round))
                 .foregroundColor(.blue)
                 .padding()
@@ -63,7 +63,7 @@ struct TestLine: View {
     }
     
     private func next() {
-        pointPair = pointPair.next()
+        direction = direction.next()
     }
     
 }

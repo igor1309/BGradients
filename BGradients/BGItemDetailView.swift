@@ -12,7 +12,7 @@ struct BGItemDetailView: View {
     
     @EnvironmentObject private var model: ViewModel
     
-    @State private var pointPair: PointPair = [PointPair].sample[1]
+    @State private var direction: Direction = [Direction].sample[1]
     @State private var showingHelp = false
     
     var body: some View {
@@ -20,94 +20,48 @@ struct BGItemDetailView: View {
             ZStack {
                 gradient(for: bgItem)
                 
-                line
-                
                 VStack(spacing: 0) {
                     dismissView
                     
-                    colorLabels(for: bgItem)
+                    ZStack {
+                        line
+                        colorLabels(for: bgItem)
+                        invisibleGradientControlButtons
+                    }
                     
-                    Text("Tap upper part to rotate and lower to change gradient\nHold color code to copy")
-                        .foregroundStyle(.secondary)
-                        .font(.caption)
+                    helpButtonView
                 }
-                
-                invisibleGradientControlButtons
-                
-                helpButtonView
             }
             .overlay(HelpOverlay(showingHelp: $showingHelp))
         }
     }
     
-    private var helpButtonView: some View {
-        VStack {
-            Spacer()
-            
-            Button {
-                // help overlay
-                withAnimation(.easeInOut(duration: 1)) {
-                    showingHelp = true
-                }
-            } label: {
-                Image(systemName: "questionmark.circle")
-                    .imageScale(.large)
-                    .padding()
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom).padding(.bottom).padding(.bottom)
-            .offset(x: -80)
-        }
+#warning("transition not working")
+    private func gradient(for bgItem: BGItem) -> some View {
+        LinearGradient(
+            gradient: Gradient(colors: bgItem.colors),
+            startPoint: direction.start,
+            endPoint: direction.end
+        )
+            .ignoresSafeArea()
+        //            .transition(
+        //                .asymmetric(
+        //                    insertion: .move(edge: .leading),
+        //                    removal: .move(edge: .trailing)
+        //                )
+        //            )
     }
     
-    private var invisibleGradientControlButtons: some View {
-        GeometryReader { geo in
-            VStack {
-                HStack {
-                    // rotate buttons
-                    Button {
-                        withAnimation(.easeInOut(duration: 1)) { previous() }
-                    } label: {
-                        Rectangle()
-                            .fill(Color.clear)
-                    }
-                    Button {
-                        withAnimation(.easeInOut(duration: 1)) { next() }
-                    } label: {
-                        Rectangle()
-                            .fill(Color.clear)
-                    }
-                }
-                .frame(height: geo.size.height / 3 * 2)
-                
-                HStack {
-                    // previous/next buttons
-                    Button {
-                        withAnimation {
-#warning("in fact it's not animatable")
-                            model.previousBGItem()
-                        }
-                    } label: {
-                        Rectangle()
-                            .fill(Color.clear)
-                    }
-                    Button {
-                        withAnimation {
-#warning("in fact it's not animatable")
-                            model.nextBGItem()
-                        }
-                    } label: {
-                        Rectangle()
-                            .fill(Color.clear)
-                    }
-                }
-                .frame(height: geo.size.height / 3)
-            }
-        }
+    private var dismissView: some View {
+        Capsule()
+            .foregroundStyle(.tertiary)
+            .controlProminence(.increased)
+            .frame(width: 60, height: 5)
+            .padding(.top, 8)
     }
     
     private var line: some View {
-        Line(pointPair: pointPair)
+        Line(direction: direction)
             .stroke(style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .foregroundStyle(.quaternary)
             .blendMode(.overlay)
@@ -116,9 +70,9 @@ struct BGItemDetailView: View {
     
     private func colorLabels(for bgItem: BGItem) -> some View {
         GeometryReader { geo in
-            ZStack(alignment: pointPair.end.alignment) {
+            ZStack(alignment: direction.end.alignment) {
                 
-                ZStack(alignment: pointPair.start.alignment) {
+                ZStack(alignment: direction.start.alignment) {
                     Color.clear
                     
                     bgItem.colorValues.first.map { uInt in
@@ -143,38 +97,82 @@ struct BGItemDetailView: View {
             .padding()
     }
     
-    private var dismissView: some View {
-        Capsule()
-            .foregroundStyle(.tertiary)
-            .controlProminence(.increased)
-            .frame(width: 60, height: 5)
-            .padding(.top, 8)
-    }
-    
-#warning("transition not working")
-    private func gradient(for bgItem: BGItem) -> some View {
-        LinearGradient(
-            gradient: Gradient(colors: bgItem.colors),
-            startPoint: pointPair.start,
-            endPoint: pointPair.end
-        )
-            .ignoresSafeArea()
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 1)) { next() }
+    private var invisibleGradientControlButtons: some View {
+        func invisibleLabel() -> some View {
+            Rectangle().fill(Color.clear)
+        }
+        
+        return GeometryReader { geo in
+            VStack {
+                // rotate buttons
+                HStack {
+                    Button {
+                        withAnimation(.easeInOut(duration: 1)) {
+                            previousGradientDirection()
+                        }
+                    } label: {
+                        invisibleLabel()
+                    }
+                    Button {
+                        withAnimation(.easeInOut(duration: 1)) {
+                            nextGradientDirection()
+                        }
+                    } label: {
+                        invisibleLabel()
+                    }
+                }
+                .frame(height: geo.size.height / 3 * 2)
+                
+                // previous/next buttons
+                HStack {
+                    Button {
+#warning("in fact it's not animatable")
+                        withAnimation(.easeInOut(duration: 1)) {
+                            model.previousBGItem()
+                        }
+                    } label: {
+                        invisibleLabel()
+                    }
+                    Button {
+#warning("in fact it's not animatable")
+                        withAnimation(.easeInOut(duration: 1)) {
+                            model.nextBGItem()
+                        }
+                    } label: {
+                        invisibleLabel()
+                    }
+                }
+                .frame(height: geo.size.height / 3)
             }
-        //            .transition(
-        //                .asymmetric(
-        //                    insertion: .move(edge: .leading),
-        //                    removal: .move(edge: .trailing)
-        //                )
-        //            )
+        }
     }
     
-    private func next() {
-        pointPair = pointPair.next()
+    private func nextGradientDirection() {
+        direction = direction.next()
     }
-    private func previous() {
-        pointPair = pointPair.previous()
+    private func previousGradientDirection() {
+        direction = direction.previous()
+    }
+    
+    private var helpButtonView: some View {
+        HStack(alignment: .top, spacing: 9) {
+            Button {
+                // help overlay
+                withAnimation(.easeInOut(duration: 1)) {
+                    showingHelp = true
+                }
+            } label: {
+                Image(systemName: "questionmark.circle")
+                    .imageScale(.large)
+            }
+            
+            VStack {
+                Text("Tap to rotate or change gradient")
+                Text("Hold color code to copy")
+            }
+            .font(.caption)
+        }
+        .foregroundStyle(.secondary)
     }
     
 }
@@ -191,47 +189,36 @@ fileprivate struct HelpOverlay: View {
                     .foregroundStyle(.purple)
                     .padding(.top)
                 
+                // rotate buttons
                 HStack {
-                    // rotate buttons
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.mint)
-                        .overlay(
-                            Label(
-                                "Tap area to rotate gradient counterclockwise",
-                                systemImage: "arrow.counterclockwise"
-                            )
-                                .padding()
+                    area(color: .mint) {
+                        Label(
+                            "Tap area to rotate gradient counterclockwise",
+                            systemImage: "arrow.counterclockwise"
                         )
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.mint)
-                        .overlay(
-                            Label(
-                                "Tap area to rotate gradient clockwise",
-                                systemImage: "arrow.clockwise"
-                            )
-                                .padding()
+                    }
+                    area(color: .mint) {
+                        Label(
+                            "Tap area to rotate gradient clockwise",
+                            systemImage: "arrow.clockwise"
                         )
+                    }
                 }
                 .frame(height: geo.size.height / 3 * 2)
                 
+                // previous/next buttons
                 HStack {
-                    // previous/next buttons
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.indigo)
-                        .overlay(
-                            Text("\(Image(systemName: "chevron.left")) Previous gradient")
-                                .padding()
-                        )
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.indigo)
-                        .overlay(
-                            Text("Next gradient \(Image(systemName: "chevron.right"))")
-                                .padding()
-                        )
+                    area(color: .indigo) {
+                        Text("\(Image(systemName: "chevron.left")) Previous gradient")
+                    }
+                    area(color: .indigo) {
+                        Text("Next gradient \(Image(systemName: "chevron.right"))")
+                    }
                 }
                 .frame(height: geo.size.height / 3)
             }
         }
+        .background(.regularMaterial)
         .opacity(showingHelp ? 1 : 0)
         .onTapGesture {
             withAnimation(.easeInOut(duration: 1)) {
@@ -239,6 +226,17 @@ fileprivate struct HelpOverlay: View {
             }
         }
     }
+    
+    private func area<V: View>(
+        color: Color,
+        cornerRadius: Double = 12,
+        label: () -> V
+    ) -> some View {
+        RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(color)
+            .overlay(label().padding())
+    }
+    
 }
 
 
