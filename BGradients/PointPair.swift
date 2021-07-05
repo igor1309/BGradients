@@ -43,6 +43,37 @@ extension PointPair {
             return PointPair(start: .center, end: .center)
         }
     }
+    
+    func previous() -> PointPair {
+        switch (start, end) {
+        case (.topLeading, .bottomTrailing):
+            return PointPair(start: .leading, end: .trailing)
+            
+        case (.top, .bottom):
+            return PointPair(start: .topLeading, end: .bottomTrailing)
+        
+        case (.topTrailing, .bottomLeading):
+            return PointPair(start: .top, end: .bottom)
+        
+        case(.trailing, .leading):
+            return PointPair(start: .topTrailing, end: .bottomLeading)
+        
+        case(.bottomTrailing, .topLeading):
+            return PointPair(start: .trailing, end: .leading)
+        
+        case (.bottom, .top):
+            return PointPair(start: .bottomTrailing, end: .topLeading)
+        
+        case (.bottomLeading, .topTrailing):
+            return PointPair(start: .bottom, end: .top)
+        
+        case (.leading, .trailing):
+            return PointPair(start: .bottomLeading, end: .topTrailing)
+        
+        default:
+            return PointPair(start: .center, end: .center)
+        }
+    }
 }
 
 extension Array where Element == PointPair {

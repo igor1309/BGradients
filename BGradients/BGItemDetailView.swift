@@ -12,7 +12,8 @@ struct BGItemDetailView: View {
     
     @EnvironmentObject private var model: ViewModel
     
-    @State private var pointPair: PointPair = [PointPair].sample[0]
+    @State private var pointPair: PointPair = [PointPair].sample[1]
+    @State private var showingHelp = false
     
     var body: some View {
         model.selectedItem.map { bgItem in
@@ -26,12 +27,133 @@ struct BGItemDetailView: View {
                     
                     colorLabels(for: bgItem)
                     
-                    chevronButtons
-                    
-                    Text("Tab to rotate gradient")
+                    // chevronButtons
+                    Text("Tap upper part to rotate and lower to change gradient")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                 }
+                
+                buttons
+                
+                helpButtonView
+            }
+            .overlay(helpOverlay)
+        }
+    }
+    
+    private var helpButtonView: some View {
+        VStack {
+            Spacer()
+            
+            Button {
+                // help overlay
+                withAnimation(.easeInOut(duration: 1)) {
+                    showingHelp = true
+                }
+            } label: {
+                Image(systemName: "questionmark.circle")
+                    .imageScale(.large)
+                    .padding()
+                    .padding()
+            }
+            .foregroundStyle(.secondary)
+            .padding(.bottom).padding(.bottom)
+            .offset(x: -80)
+        }
+    }
+    
+    private var helpOverlay: some View {
+        GeometryReader { geo in
+            VStack {
+                Text("Tap anywhere to close")
+                    .foregroundStyle(.indigo)
+                    .padding(.top)
+                
+                HStack {
+                    // rotate buttons
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.mint)
+                        .overlay(
+                            Text("Tap area to rotate gradient counterclockwise")
+                                .padding()
+                        )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.mint)
+                        .overlay(
+                            Text("Tap area to rotate gradient clockwise")
+                                .padding()
+                        )
+                }
+                .frame(height: geo.size.height / 3 * 2)
+                
+                HStack {
+                    // previous/next buttons
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.indigo)
+                        .overlay(
+                            Text("Previous gradient")
+                                .padding()
+                        )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.indigo)
+                        .overlay(
+                            Text("Next gradient")
+                                .padding()
+                        )
+                }
+                .frame(height: geo.size.height / 3)
+            }
+        }
+        .opacity(showingHelp ? 1 : 0)
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 1)) {
+                showingHelp = false
+            }
+        }
+    }
+    
+    private var buttons: some View {
+        GeometryReader { geo in
+            VStack {
+                HStack {
+                    // rotate buttons
+                    Button {
+                        withAnimation(.easeInOut(duration: 1)) { previous() }
+                    } label: {
+                        Rectangle()
+                            .fill(Color.clear)
+                    }
+                    Button {
+                        withAnimation(.easeInOut(duration: 1)) { next() }
+                    } label: {
+                        Rectangle()
+                            .fill(Color.clear)
+                    }
+                }
+                .frame(height: geo.size.height / 3 * 2)
+                
+                HStack {
+                    // previous/next buttons
+                    Button {
+                        withAnimation {
+#warning("in fact it's not animatable")
+                            model.previousBGItem()
+                        }
+                    } label: {
+                        Rectangle()
+                            .fill(Color.clear)
+                    }
+                    Button {
+                        withAnimation {
+#warning("in fact it's not animatable")
+                            model.nextBGItem()
+                        }
+                    } label: {
+                        Rectangle()
+                            .fill(Color.clear)
+                    }
+                }
+                .frame(height: geo.size.height / 3)
             }
         }
     }
@@ -136,6 +258,9 @@ struct BGItemDetailView: View {
     
     private func next() {
         pointPair = pointPair.next()
+    }
+    private func previous() {
+        pointPair = pointPair.previous()
     }
     
 }
