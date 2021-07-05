@@ -27,17 +27,16 @@ struct BGItemDetailView: View {
                     
                     colorLabels(for: bgItem)
                     
-                    // chevronButtons
                     Text("Tap upper part to rotate and lower to change gradient\nHold color code to copy")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                 }
                 
-                buttons
+                invisibleGradientControlButtons
                 
                 helpButtonView
             }
-            .overlay(helpOverlay)
+            .overlay(HelpOverlay(showingHelp: $showingHelp))
         }
     }
     
@@ -54,71 +53,14 @@ struct BGItemDetailView: View {
                 Image(systemName: "questionmark.circle")
                     .imageScale(.large)
                     .padding()
-                    .padding()
             }
             .foregroundStyle(.secondary)
-            .padding(.bottom).padding(.bottom)
+            .padding(.bottom).padding(.bottom).padding(.bottom)
             .offset(x: -80)
         }
     }
     
-    private var helpOverlay: some View {
-        GeometryReader { geo in
-            VStack {
-                Text("Tap anywhere to close")
-                    .foregroundStyle(.purple)
-                    .padding(.top)
-                
-                HStack {
-                    // rotate buttons
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.mint)
-                        .overlay(
-                            Label(
-                                "Tap area to rotate gradient counterclockwise",
-                                systemImage: "arrow.counterclockwise"
-                            )
-                                .padding()
-                        )
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.mint)
-                        .overlay(
-                            Label(
-                                "Tap area to rotate gradient clockwise",
-                                systemImage: "arrow.clockwise"
-                            )
-                                .padding()
-                        )
-                }
-                .frame(height: geo.size.height / 3 * 2)
-                
-                HStack {
-                    // previous/next buttons
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.indigo)
-                        .overlay(
-                            Text("\(Image(systemName: "chevron.left")) Previous gradient")
-                                .padding()
-                        )
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.indigo)
-                        .overlay(
-                            Text("Next gradient \(Image(systemName: "chevron.right"))")
-                                .padding()
-                        )
-                }
-                .frame(height: geo.size.height / 3)
-            }
-        }
-        .opacity(showingHelp ? 1 : 0)
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 1)) {
-                showingHelp = false
-            }
-        }
-    }
-    
-    private var buttons: some View {
+    private var invisibleGradientControlButtons: some View {
         GeometryReader { geo in
             VStack {
                 HStack {
@@ -180,18 +122,18 @@ struct BGItemDetailView: View {
                     Color.clear
                     
                     bgItem.colorValues.first.map { uInt in
-                        textForColor(uInt)
+                        colorLabel(uInt)
                     }
                 }
                 
                 bgItem.colorValues.last.map { uInt in
-                    textForColor(uInt)
+                    colorLabel(uInt)
                 }
             }
         }
     }
     
-    private func textForColor(_ uInt: UInt32) -> some View {
+    private func colorLabel(_ uInt: UInt32) -> some View {
         Text(String(format: "%02X", uInt))
             .foregroundStyle(.secondary)
             .controlProminence(.increased)
@@ -207,40 +149,6 @@ struct BGItemDetailView: View {
             .controlProminence(.increased)
             .frame(width: 60, height: 5)
             .padding(.top, 8)
-    }
-    
-    private var chevronButtons: some View {
-        HStack {
-            previousButton
-            Spacer()
-            nextButton
-        }
-    }
-    
-    private var previousButton: some View {
-        Button {
-            withAnimation {
-#warning("in fact it's not animatable")
-                model.previousBGItem()
-            }
-        } label: {
-            Label("Close Gradient", systemImage: "chevron.left")
-        }
-        .buttonStyle(ShevfonButtonStyle())
-        .padding(.horizontal)
-    }
-    
-    private var nextButton: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 2)) {
-#warning("in fact it's not animatable")
-                model.nextBGItem()
-            }
-        } label: {
-            Label("Close Gradient", systemImage: "chevron.right")
-        }
-        .buttonStyle(ShevfonButtonStyle())
-        .padding(.horizontal)
     }
     
 #warning("transition not working")
@@ -272,12 +180,79 @@ struct BGItemDetailView: View {
 }
 
 @available(iOS 15.0, *)
+fileprivate struct HelpOverlay: View {
+    
+    @Binding var showingHelp: Bool
+    
+    var body: some View {
+        GeometryReader { geo in
+            VStack {
+                Text("Tap anywhere to close")
+                    .foregroundStyle(.purple)
+                    .padding(.top)
+                
+                HStack {
+                    // rotate buttons
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.mint)
+                        .overlay(
+                            Label(
+                                "Tap area to rotate gradient counterclockwise",
+                                systemImage: "arrow.counterclockwise"
+                            )
+                                .padding()
+                        )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.mint)
+                        .overlay(
+                            Label(
+                                "Tap area to rotate gradient clockwise",
+                                systemImage: "arrow.clockwise"
+                            )
+                                .padding()
+                        )
+                }
+                .frame(height: geo.size.height / 3 * 2)
+                
+                HStack {
+                    // previous/next buttons
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.indigo)
+                        .overlay(
+                            Text("\(Image(systemName: "chevron.left")) Previous gradient")
+                                .padding()
+                        )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.indigo)
+                        .overlay(
+                            Text("Next gradient \(Image(systemName: "chevron.right"))")
+                                .padding()
+                        )
+                }
+                .frame(height: geo.size.height / 3)
+            }
+        }
+        .opacity(showingHelp ? 1 : 0)
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 1)) {
+                showingHelp = false
+            }
+        }
+    }
+}
+
+
+@available(iOS 15.0, *)
 struct BGItemDetailView_Previews: PreviewProvider {
     @StateObject static var model = ViewModel()
     
     static var previews: some View {
-        BGItemDetailView()
-            .environmentObject(model)
-            .preferredColorScheme(.dark)
+        Group {
+            BGItemDetailView()
+            
+            HelpOverlay(showingHelp: .constant(true))
+        }
+        .environmentObject(model)
+        .preferredColorScheme(.dark)
     }
 }
